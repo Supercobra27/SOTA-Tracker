@@ -1,8 +1,3 @@
-/domains.csv
-/fields.csv
-/merged_1.csv
-/merged_2.csv
-/merged_3.csv
-/merged_4.csv
+/data/*.csv
 /old.py
 /openalex.py
