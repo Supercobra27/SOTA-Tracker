@@ -16,18 +16,21 @@ PAGE_QUERY = "&page="
 PERPAGE_QUERY = "&per_page="
 API_KEY = "&api_key="
 
-keywords = ["Parallel", "Interconnect", "Computing", "Technology", "Optic", "Photonic"]
+def get_tags(doi):
+    return json.loads(requests.get(f"{BASE_URL}{WORKS}/https://doi.org/{doi}").content)
 
-pattern = r"Parallel|Interconnect|Computing|Technology|Optic|Photonic|Network"
-pattern = r"Parallel|Interconnect"
+def get_items():
+    keywords = ["Parallel", "Interconnect", "Computing", "Technology", "Optic", "Photonic"]
 
-df = pd.read_csv("data/merged_3.csv")
-df = df[df["id_topic"].str.contains(pattern, case=False, na=False)]
+    pattern = r"Parallel|Interconnect|Computing|Technology|Optic|Photonic|Network"
+    pattern = r"Parallel|Interconnect"
 
-df2 = dict(zip(df["id_topic"], df["id_name"]))
-print(df2)
+    df = pd.read_csv("data/merged_3.csv")
+    df = df[df["id_topic"].str.contains(pattern, case=False, na=False)]
 
-for id in set(df["id_name"]):
-    data = json.loads(requests.get(f"{BASE_URL}/works?filter=primary_topic.id:{id},best_oa_location.source.id:S4306400194,publication_year:%3E2024").content)
-    count = data["meta"]["count"]
-    print(count)
+    for id in set(df["id_name"]):
+        data = json.loads(requests.get(f"{BASE_URL}/works?filter=primary_topic.id:{id},best_oa_location.source.id:S4306400194,publication_year:%3E2024").content)
+        count = data["meta"]["count"]
+        print(count)
+        
+print(get_tags('10.48550/arXiv.2505.03764'))
