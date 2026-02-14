@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 import csv
 import re
 
+# should expand this to OUTSIDE of quant
+
 class JobBoardURL():
     def __init__(self):
         pass
@@ -12,7 +14,8 @@ urls = ['https://www.hudsonrivertrading.com/wp-admin/admin-ajax.php',
         'https://www.jumptrading.com/hr/experienced-candidates',
         'https://www.jumptrading.com/hr/students-new-grads',
         'https://www.janestreet.com/join-jane-street/open-roles/?type=experienced-candidates&location=all-locations',
-        'https://www.janestreet.com/join-jane-street/open-roles/?type=students-and-new-grads&location=all-locations&department=all-departments']
+        'https://www.janestreet.com/join-jane-street/open-roles/?type=students-and-new-grads&location=all-locations&department=all-departments',
+        'https://www.realtimerisksystems.com/']
 
 setting = {
     "meta_data": [
