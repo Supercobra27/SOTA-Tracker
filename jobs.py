@@ -4,12 +4,6 @@ from bs4 import BeautifulSoup
 import csv
 import re
 
-# should expand this to OUTSIDE of quant
-
-class JobBoardURL():
-    def __init__(self):
-        pass
-
 urls = ['https://www.hudsonrivertrading.com/wp-admin/admin-ajax.php',
         'https://www.jumptrading.com/hr/experienced-candidates',
         'https://www.jumptrading.com/hr/students-new-grads',
@@ -44,71 +38,26 @@ jobs_json = r.json()
 
 rows = []
 
-def parse_sections(text):
-    sections = {
-        "responsibilities": [],
-        "profile": [],
-        "skills": []
-    }
 
-    text = text.replace("\r", "")
-    
-    pattern = r"(Responsibilities|Profile|Skills)"
-    parts = re.split(pattern, text)
-
-    for i in range(1, len(parts), 2):
-        header = parts[i].lower()
-        block = parts[i+1]
-
-        lines = [
-            line.strip("•- \n\t")
-            for line in block.split("\n")
-            if line.strip()
-        ]
-
-        if header == "responsibilities":
-            sections["responsibilities"] = lines
-        elif header == "profile":
-            sections["profile"] = lines
-        elif header == "skills":
-            sections["skills"] = lines
-
-    return sections
-
-def get_hrt_job():
+def get_hrt_job(jobs_json):
     for job in jobs_json:
         soup = BeautifulSoup(job["content"], "html.parser")
 
         title = soup.select_one(".hrt-card-title").get_text(strip=True)
         url = soup.select_one(".hrt-card-title")["href"]
-
         meta = [m.get_text(strip=True)
                 for m in soup.select(".hrt-card-info-item span")]
         
-        description = parse_sections(job["description"])
+        headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    "Referer": "https://www.hudsonrivertrading.com/",
+        }
         
-        for i, item in enumerate(description["skills"]):
-            if 'The estimated base salary range' in item:
-                description["skills"] = description["skills"][:i]
-        
-        print(description["skills"])
+        job_desc = requests.get('https://job-boards.greenhouse.io/embed/job_app?for=wehrtyou&token=7584240', headers=headers)
+        job_soup = BeautifulSoup(job_desc.content, "html.parser").get_text()
+        job_soup = re.split(r'Responsibilities|Qualifications|The estimated base salary range', job_soup)[1:-1]
+        job_soup = [j.replace('\n', ' ').strip() for j in job_soup]
+        print(job_soup)
         exit()
 
-        rows.append({
-            "title": title.replace('–', '-'),
-            "url": url,
-            "meta": " | ".join(meta)
-        })
-
-
-    # export to CSV
-    with open("hrt_jobs.csv", "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["title", "url", "meta"])
-        writer.writeheader()
-        writer.writerows(rows)
-
-    print(f"saved {len(rows)} jobs to hrt_jobs.csv")
-    
-get_hrt_job()
-    
-# print(requests.get('https://www.hudsonrivertrading.com/hrt-job/hpc-network-engineer-4/').text)
+get_hrt_job(jobs_json)
